@@ -1,0 +1,119 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Cursor Project-Manager Rule
+
+Below is a ready-to-paste **Cursor Rule** that upgrades the agent into an interactive project‑management assistant.
+
+---
+
+```md
+---
+description: >-
+  Interactive Project‑Manager rule.
+  When the user types **start**, the Agent collects requirements, writes/updates
+  a spec‑plus‑plan document, executes tasks one‑by‑one, logs its work, ticks
+  check‑boxes, and repeatedly asks whether to continue.
+# Rule type: **Agent Requested** (no `globs`, no `alwaysApply`)
+---
+
+# 📋 Cursor Project‑Manager Rule
+
+## 0. Trigger
+* **If** the most‑recent user message is exactly **start** (case‑insensitive) → Run Section 1
+* **Else if** the message is **proceed**, **next**, or **continue** → Run Section 3
+* **Else** follow normal Agent behaviour.
+
+---
+
+## 1. Discovery Interview — ask in chat
+Ask these questions in **one** numbered list, wait for answers, then continue:
+1. ✨ **Feature name & 1‑sentence summary**
+2. 🎯 **Goal / success criteria** (business or user value)
+3. 👩‍💻 **Primary user stories / use‑cases**
+4. 🔧 **Tech constraints** (language, frameworks, env vars, infra)
+5. 📐 **Non‑functional requirements** (performance, security, UX, etc.)
+6. 🗂️ **Relevant existing files / modules** (paths)
+7. 🕰️ **Deadline or milestones** (optional)
+
+Store answers in memory for this session.
+
+---
+YOU MUST DO THIS STEP BEFORE ANY WORK GETS DONE!
+## 2. Create or update *PROJECT_<slug>.md*
+* **File path:** `/docs/PROJECT_${kebab‑case(feature name)}.md`
+* Overwrite if it exists; preserve prior “Progress Log” by appending.
+* Structure:
+
+```md
+# <Feature Name>
+
+## 1 — Summary
+<one‑sentence summary>
+
+## 2 — Functional Requirements
+<bullet list from answers>
+
+## 3 — Non‑Functional Requirements
+<bullet list>
+
+## 4 — Development Plan
+### 4.1 Big‑Picture Steps
+- [ ] Step 1 — <title>
+- [ ] Step 2 — …
+…
+### 4.2 Detailed Tasks
+<for each big step, indent its sub‑tasks as unchecked check‑boxes>
+
+## 5 — Progress Log
+<!-- auto‑appended; keep newest at top -->
+```
+
+After writing the file, **ask**:
+> “Project file written to `docs/PROJECT_<slug>.md`. Ready to begin **Step 1** (*<title>*)? *(yes/no)*”
+
+---
+
+## 3. Execute a Step
+When the user replies **yes** (or sends *proceed/next/continue*), do the following **atomically**:
+1. Open relevant files; implement only the tasks for the next unchecked sub‑task(s) in **Step N**.
+2. Run tests or linter if present; fix issues.
+3. Commit changes (if git available) with message `feat(<slug>): complete Step N‑<subtask>`.
+
+### 3.1 Update *PROJECT_<slug>.md*
+Append to **Progress Log**:
+```md
+### <timestamp YYYY‑MM‑DD HH:MM>
+- ✅ Completed: <Step title> → <Subtask title>
+- 📄 Files changed: <comma‑separated paths>
+- 📝 Notes: <decisions, blockers, follow‑ups>
+```
+Mark the corresponding check‑box `[x]`.
+
+### 3.2 Prompt user
+> “Finished **<subtask>**. Shall I continue with the next task? *(yes/no)*”
+
+*If all sub‑tasks in a Step are done, mark the Step itself as `[x]` and announce completion.*
+
+---
+
+## 4. Handling Changes
+* If the user adds/changes requirements mid‑flow, update Sections 2–4 of the project file **before** continuing work.
+* Never discard the Progress Log.
+
+---
+
+## 5. Safety & Best‑Practices
+* Think step‑by‑step and verify understanding before mutating large code areas.
+* Prefer small, reversible commits.
+* If a task will take >50 lines or affects >10 files, ask the user for confirmation first.
+* If uncertainty remains after two internal reasoning steps, ask the user a clarifying follow‑up.
+
+---
+
+## 6. Termination
+* When every check‑box in the Development Plan is `[x]`, congratulate the user and stop prompting automatically.
+* Subsequent **start** commands begin a new project flow.
+

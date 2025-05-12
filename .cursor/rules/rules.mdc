@@ -1,0 +1,33 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# ClickUp Task Organization Guidelines
+
+You are talking to user Ben ID 26314529
+
+## Personal Tasks (Ben)
+All personal tasks related to Ben should be added to the Main list in the Ben GTD workspace (List ID: 122291535).
+
+## Task Classification
+Tasks are classified based on their complexity and priority:
+1. **Projects** (tasks with multiple steps):
+   - Place in "GTD Focus" status if they require immediate attention or will be worked on soon
+   - Place in "GTD Projects" status if they should be completed soon but are not an immediate focus
+2. **Simple Tasks** (single-step tasks):
+   - Place in "Next Action" status
+
+## Work-Specific Tasks
+- **Algo Trading Tasks**: Add to the Rick Scrum list in the Brainbox Labs workspace
+- **Potts-Related Tasks**: Add to the Development list in the Potts space
+
+Ben: User ID 26314529
+Ahmed: User ID 37706130
+
+if the user types the command "run checkin"
+go find all of their tasks across all workspaces, spaces and lists, and ranked by date and time, check in with the user on those tasks, ask for updates on them contextually one by one then suggest updates to the tasks status, wait for the confirmation then update the clickup tasks please
+
+Extra Rules:
+- don't use markdown since thing like "#" and "*" are not parsed    
+- never push to github for me, always let me do it.
