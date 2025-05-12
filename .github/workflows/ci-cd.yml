@@ -1,0 +1,114 @@
+name: SlipVault CI/CD
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '20'
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Lint
+      run: npm run lint
+    
+    - name: Compile contracts
+      run: npm run compile
+    
+    - name: Run smart contract tests
+      run: npm test
+    
+    - name: Install Playwright browsers
+      run: npx playwright install --with-deps
+    
+    - name: Run Playwright tests
+      run: npm run test:e2e
+    
+    - name: Upload Playwright test results
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: playwright-report
+        path: playwright-report/
+        retention-days: 30
+  
+  # Only run the build and deploy jobs on the main branch
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    needs: test
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '20'
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Build
+      run: npm run build
+    
+    - name: Zip build artifacts
+      run: |
+        zip -r build.zip .next package.json next.config.js public
+    
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: build
+        path: build.zip
+        retention-days: 1
+  
+  # This job would typically deploy to your server
+  # You'll need to set up appropriate secrets in your GitHub repository
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    
+    # Uncomment and customize the deployment steps when you're ready
+    # The following is just a placeholder
+    steps:
+    - name: Download build artifacts
+      uses: actions/download-artifact@v3
+      with:
+        name: build
+    
+    - name: Extract build artifacts
+      run: unzip -q build.zip -d ./build
+    
+    # Placeholder for actual deployment steps
+    # You would typically use SSH to deploy to your server
+    # Example using ssh-action:
+    # - name: Deploy to server
+    #   uses: appleboy/ssh-action@master
+    #   with:
+    #     host: ${{ secrets.HOST }}
+    #     username: ${{ secrets.USERNAME }}
+    #     key: ${{ secrets.SSH_PRIVATE_KEY }}
+    #     script: |
+    #       cd /path/to/slipvault
+    #       git pull
+    #       docker-compose down
+    #       docker-compose up -d --build 

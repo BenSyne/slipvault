@@ -1,5 +1,5 @@
 {
-  "name": "web",
+  "name": "slipvault",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -7,9 +7,13 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "test": "npx hardhat test",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
-    "test:e2e:debug": "playwright test --debug"
+    "test:e2e:debug": "playwright test --debug",
+    "compile": "npx hardhat compile",
+    "deploy:sepolia": "npx hardhat run scripts/deploy/base-sepolia.ts --network base_sepolia",
+    "deploy:mainnet": "npx hardhat run scripts/deploy/base-mainnet.ts --network base_mainnet"
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.2.2",
